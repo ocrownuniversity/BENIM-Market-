@@ -1,0 +1,25 @@
+{
+  "name": "BENIM Market",
+  "short_name": "BENIM",
+  "description": "Shop Smart, Live Better - Ibadan's Online Marketplace",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#f5821f",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' rx='32' fill='%23f5821f'/><text y='130' x='50%' text-anchor='middle' font-size='110' font-family='serif'>🛒</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='80' fill='%23f5821f'/><text y='360' x='50%' text-anchor='middle' font-size='300' font-family='serif'>🛒</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["shopping", "lifestyle"],
+  "lang": "en",
+  "scope": "/"
+}
