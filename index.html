@@ -7,18 +7,18 @@
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{
-  --primary:#f5821f;
-  --primary-dark:#d96b08;
-  --secondary:#1a2a4a;
-  --accent:#ffcd3c;
+  --primary:#1565c0;
+  --primary-dark:#0d47a1;
+  --secondary:#0a2a6e;
+  --accent:#fdd835;
   --green:#27ae60;
   --red:#e74c3c;
-  --light:#f7f8fc;
+  --light:#f0f4ff;
   --white:#ffffff;
-  --border:#e0e4ef;
-  --text:#222831;
-  --muted:#7a869a;
-  --card-shadow:0 2px 16px rgba(30,40,80,0.10);
+  --border:#c5d3f0;
+  --text:#0a1a3a;
+  --muted:#5a6e99;
+  --card-shadow:0 2px 16px rgba(10,42,110,0.10);
   --radius:10px;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -29,6 +29,26 @@ button{cursor:pointer;font-family:inherit;}
 
 .page{display:none;}
 .page.active{display:block;}
+
+/* ===== ICON PICKER ===== */
+.icon-opt{font-size:28px;padding:6px 8px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;line-height:1;display:inline-block;}
+.icon-opt:hover{background:var(--light);border-color:var(--border);}
+.icon-opt.selected{background:#fff3e0;border-color:var(--primary);}
+.upload-success{background:#e8f9ef;border:1px solid #a8e6bf;border-radius:8px;padding:14px 18px;color:#1a7a40;font-size:14px;font-weight:600;}
+.upload-error{background:#fff0f0;border:1px solid #f5a0a0;border-radius:8px;padding:14px 18px;color:#c0392b;font-size:14px;font-weight:600;}
+
+/* ===== IMAGE UPLOAD ===== */
+.img-upload-grid{display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap;}
+.img-drop-zone{width:260px;height:200px;border:2px dashed var(--border);border-radius:10px;display:flex;align-items:center;justify-content:center;text-align:center;cursor:pointer;transition:all .2s;background:var(--light);flex-shrink:0;overflow:hidden;position:relative;}
+.img-drop-zone:hover,.img-drop-zone.drag-over{border-color:var(--primary);background:#f0f4ff;}
+.img-drop-zone.has-image{border-style:solid;border-color:var(--primary);}
+.img-thumb-slots{display:flex;flex-direction:column;gap:10px;}
+.img-slot{width:80px;height:80px;border:2px dashed var(--border);border-radius:8px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:22px;color:var(--muted);background:var(--light);transition:all .2s;overflow:hidden;position:relative;flex-shrink:0;}
+.img-slot:hover{border-color:var(--primary);color:var(--primary);}
+.img-slot.has-image{border-style:solid;border-color:var(--primary);}
+.img-slot img{width:100%;height:100%;object-fit:cover;}
+.img-slot .remove-img{position:absolute;top:2px;right:2px;background:var(--red);color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;display:none;align-items:center;justify-content:center;cursor:pointer;z-index:2;}
+.img-slot.has-image .remove-img{display:flex;}
 
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--secondary);color:#fff;padding:12px 24px;border-radius:8px;font-size:14px;z-index:9999;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,0.25);}
 .toast.show{opacity:1;}
@@ -70,7 +90,7 @@ nav{background:var(--secondary);}
 .nav-inner a:hover,.nav-inner a.active{color:#fff;border-bottom-color:var(--primary);}
 
 /* ===== HERO ===== */
-.hero{background:linear-gradient(135deg,var(--secondary) 0%,#1e3a6e 60%,#2d5299 100%);min-height:320px;display:flex;align-items:center;position:relative;overflow:hidden;}
+.hero{background:linear-gradient(135deg,var(--secondary) 0%,#1565c0 60%,#1976d2 100%);min-height:320px;display:flex;align-items:center;position:relative;overflow:hidden;}
 .hero::before{content:'';position:absolute;right:-60px;top:-60px;width:380px;height:380px;background:rgba(255,205,60,0.08);border-radius:50%;}
 .hero::after{content:'';position:absolute;left:40%;bottom:-80px;width:300px;height:300px;background:rgba(245,130,31,0.10);border-radius:50%;}
 .hero-inner{max-width:1300px;margin:auto;padding:40px 16px;display:flex;align-items:center;justify-content:space-between;gap:30px;width:100%;position:relative;z-index:1;flex-wrap:wrap;}
@@ -78,10 +98,10 @@ nav{background:var(--secondary);}
 .hero-text .tag{display:inline-block;background:var(--accent);color:var(--secondary);padding:4px 14px;border-radius:20px;font-size:12px;font-weight:700;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
 .hero-text h1{font-family:'Nunito',sans-serif;font-size:clamp(28px,4vw,48px);font-weight:900;color:#fff;line-height:1.15;margin-bottom:12px;}
 .hero-text h1 span{color:var(--accent);}
-.hero-text p{color:#a8bcd8;font-size:15px;margin-bottom:22px;}
+.hero-text p{color:#a8c4e8;font-size:15px;margin-bottom:22px;}
 .hero-btns{display:flex;gap:12px;flex-wrap:wrap;}
-.btn-primary{background:var(--primary);color:#fff;border:none;padding:12px 28px;border-radius:7px;font-size:14px;font-weight:600;transition:all .2s;cursor:pointer;}
-.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px);}
+.btn-primary{background:var(--accent);color:var(--secondary);border:none;padding:12px 28px;border-radius:7px;font-size:14px;font-weight:700;transition:all .2s;cursor:pointer;}
+.btn-primary:hover{background:#f9cf00;transform:translateY(-1px);}
 .btn-outline{background:transparent;color:#fff;border:2px solid rgba(255,255,255,0.5);padding:11px 24px;border-radius:7px;font-size:14px;font-weight:600;transition:all .2s;cursor:pointer;}
 .btn-outline:hover{border-color:#fff;background:rgba(255,255,255,0.1);}
 .hero-badges{display:flex;gap:16px;flex-wrap:wrap;margin-top:20px;}
@@ -90,7 +110,7 @@ nav{background:var(--secondary);}
 .hero-promo-card{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:24px;min-width:220px;text-align:center;backdrop-filter:blur(8px);}
 .hero-promo-card .big{font-size:52px;font-family:'Nunito',sans-serif;font-weight:900;color:var(--accent);}
 .hero-promo-card p{color:#fff;font-size:15px;margin-top:4px;}
-.hero-promo-card small{color:#a8bcd8;font-size:12px;}
+.hero-promo-card small{color:#a8c4e8;font-size:12px;}
 
 /* ===== SECTIONS ===== */
 .section{padding:36px 0;}
@@ -102,7 +122,7 @@ nav{background:var(--secondary);}
 .see-all:hover{text-decoration:underline;}
 
 /* ===== FLASH SALE ===== */
-.flash-sale-section{background:linear-gradient(90deg,var(--secondary),#1e3a6e);}
+.flash-sale-section{background:linear-gradient(90deg,var(--secondary),#1565c0);}
 .flash-header{display:flex;align-items:center;gap:16px;margin-bottom:20px;flex-wrap:wrap;}
 .flash-label{background:var(--red);color:#fff;padding:6px 16px;border-radius:6px;font-weight:700;font-size:14px;display:flex;align-items:center;gap:6px;}
 .countdown{display:flex;gap:6px;align-items:center;}
@@ -113,7 +133,7 @@ nav{background:var(--secondary);}
 .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px;}
 .product-card{background:#fff;border-radius:var(--radius);overflow:hidden;box-shadow:var(--card-shadow);transition:transform .2s,box-shadow .2s;position:relative;cursor:pointer;}
 .product-card:hover{transform:translateY(-4px);box-shadow:0 8px 28px rgba(30,40,80,0.14);}
-.product-img{width:100%;height:170px;background:linear-gradient(135deg,#f0f4ff,#e8f0fe);display:flex;align-items:center;justify-content:center;font-size:52px;position:relative;overflow:hidden;}
+.product-img{width:100%;height:170px;background:#f0f4ff;display:flex;align-items:center;justify-content:center;font-size:52px;position:relative;overflow:hidden;}.product-img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s;}.product-card:hover .product-img img{transform:scale(1.05);}
 .discount-badge{position:absolute;top:8px;left:8px;background:var(--red);color:#fff;font-size:11px;font-weight:700;padding:3px 8px;border-radius:5px;}
 .wishlist-btn{position:absolute;top:8px;right:8px;background:#fff;border:none;border-radius:50%;width:30px;height:30px;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 6px rgba(0,0,0,0.1);opacity:0;transition:opacity .2s;}
 .product-card:hover .wishlist-btn{opacity:1;}
@@ -145,7 +165,7 @@ nav{background:var(--secondary);}
 .review-text{font-size:13px;color:#555;line-height:1.6;}
 
 /* ===== NEWSLETTER ===== */
-.newsletter{background:linear-gradient(135deg,var(--primary),var(--primary-dark));padding:48px 16px;text-align:center;}
+.newsletter{background:linear-gradient(135deg,#1565c0,#0d47a1);padding:48px 16px;text-align:center;}
 .newsletter h2{font-family:'Nunito',sans-serif;font-size:28px;font-weight:900;color:#fff;margin-bottom:8px;}
 .newsletter p{color:rgba(255,255,255,0.85);margin-bottom:24px;}
 .newsletter-form{display:flex;max-width:480px;margin:auto;border-radius:8px;overflow:hidden;box-shadow:0 4px 18px rgba(0,0,0,0.2);}
@@ -184,9 +204,9 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
 /* ===== PRODUCT DETAIL PAGE ===== */
 .product-detail-layout{max-width:1100px;margin:auto;padding:28px 16px;display:flex;gap:32px;flex-wrap:wrap;}
 .pd-gallery{flex-shrink:0;width:380px;}
-.pd-main-img{width:100%;aspect-ratio:1;background:linear-gradient(135deg,#f0f4ff,#e8f0fe);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:110px;box-shadow:var(--card-shadow);margin-bottom:12px;}
+.pd-main-img{width:100%;aspect-ratio:1;background:#f0f4ff;border-radius:14px;overflow:hidden;box-shadow:var(--card-shadow);margin-bottom:12px;display:flex;align-items:center;justify-content:center;}.pd-main-img img{width:100%;height:100%;object-fit:cover;border-radius:14px;}.pd-thumb{width:72px;height:72px;background:#e8f0fe;border-radius:8px;overflow:hidden;border:2px solid var(--border);cursor:pointer;transition:border-color .2s;}.pd-thumb img{width:100%;height:100%;object-fit:cover;}
 .pd-thumbs{display:flex;gap:10px;}
-.pd-thumb{width:72px;height:72px;background:linear-gradient(135deg,#e8f0fe,#f0f4ff);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:30px;border:2px solid var(--border);cursor:pointer;transition:border-color .2s;}
+/* pd-thumb replaced */
 .pd-thumb.active,.pd-thumb:hover{border-color:var(--primary);}
 .pd-info{flex:1;min-width:260px;}
 .pd-category{font-size:12px;font-weight:600;color:var(--primary);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
@@ -862,7 +882,7 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
       <div id="seller-tab-overview">
         <div class="dash-header"><h2>Seller Dashboard</h2></div>
         <div class="stats-row">
-          <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val">24</div><div class="stat-label">Products Listed</div></div>
+          <div class="stat-card"><div class="stat-icon">📦</div><div class="stat-val" id="seller-stat-products">—</div><div class="stat-label">Products Listed</div></div>
           <div class="stat-card"><div class="stat-icon">🛒</div><div class="stat-val">87</div><div class="stat-label">Total Orders</div></div>
           <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-val">₦145k</div><div class="stat-label">Total Earnings</div></div>
           <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-val">4.8</div><div class="stat-label">Seller Rating</div></div>
@@ -876,15 +896,66 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
       <div id="seller-tab-upload" style="display:none;">
         <div class="dash-header"><h2>Upload New Product</h2></div>
         <div style="background:#fff;border-radius:var(--radius);padding:24px;box-shadow:var(--card-shadow);">
-          <div class="upload-area" onclick="showToast('File upload coming soon!')"><div style="font-size:36px;margin-bottom:8px;">📸</div><strong>Click to upload product images</strong><div style="font-size:12px;color:var(--muted);margin-top:4px;">PNG, JPG up to 5MB each</div></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
-            <div class="form-group"><label>Product Name</label><input type="text" placeholder="Enter product name"></div>
-            <div class="form-group"><label>Category</label><select><option>Phones & Tablets</option><option>Electronics</option><option>Fashion</option><option>Shoes</option><option>Bags</option><option>Beauty</option><option>Home Appliances</option><option>Gaming</option><option>Sports</option><option>Kids Items</option></select></div>
-            <div class="form-group"><label>Price (₦)</label><input type="number" placeholder="0.00"></div>
-            <div class="form-group"><label>Stock Quantity</label><input type="number" placeholder="0"></div>
+
+          <!-- IMAGE UPLOAD AREA -->
+          <div class="form-group">
+            <label style="font-weight:600;font-size:13px;color:var(--secondary);margin-bottom:8px;display:block;">Product Images * <span style="color:var(--muted);font-weight:400;">(up to 4 photos)</span></label>
+            <input type="file" id="up-image-input" accept="image/*" multiple style="display:none;" onchange="handleImageUpload(event)">
+            <div class="img-upload-grid">
+              <!-- Main drop zone -->
+              <div class="img-drop-zone" id="img-drop-zone" onclick="document.getElementById('up-image-input').click()" ondragover="event.preventDefault();this.classList.add('drag-over')" ondragleave="this.classList.remove('drag-over')" ondrop="handleImageDrop(event)">
+                <div id="img-drop-placeholder">
+                  <div style="font-size:42px;margin-bottom:10px;">📸</div>
+                  <div style="font-weight:700;font-size:14px;color:var(--secondary);">Click or drag & drop to upload</div>
+                  <div style="font-size:12px;color:var(--muted);margin-top:4px;">JPG, PNG, WEBP — up to 4 images, max 5MB each</div>
+                  <div style="margin-top:12px;background:var(--primary);color:#fff;display:inline-block;padding:8px 22px;border-radius:6px;font-size:13px;font-weight:600;">Browse Files</div>
+                </div>
+                <img id="img-drop-preview" src="" alt="preview" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:8px;">
+              </div>
+              <!-- Thumbnail slots -->
+              <div class="img-thumb-slots">
+                <div class="img-slot" id="img-slot-0" onclick="triggerSlotUpload(0)"><span>+</span></div>
+                <div class="img-slot" id="img-slot-1" onclick="triggerSlotUpload(1)"><span>+</span></div>
+                <div class="img-slot" id="img-slot-2" onclick="triggerSlotUpload(2)"><span>+</span></div>
+              </div>
+            </div>
+            <div style="font-size:11px;color:var(--muted);margin-top:6px;">💡 First image will be the main product photo shown to buyers</div>
           </div>
-          <div class="form-group"><label>Description</label><textarea rows="4" placeholder="Describe your product..."></textarea></div>
-          <button class="btn-primary" onclick="showToast('✅ Product uploaded successfully!')">Upload Product</button>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="form-group"><label>Product Name *</label><input type="text" id="up-name" placeholder="Enter product name"></div>
+            <div class="form-group"><label>Seller / Shop Name *</label><input type="text" id="up-seller" placeholder="e.g. TechHub Ibadan"></div>
+            <div class="form-group"><label>Category *</label>
+              <select id="up-category">
+                <option value="Phones & Tablets">Phones & Tablets</option>
+                <option value="Electronics">Electronics</option>
+                <option value="Fashion">Fashion</option>
+                <option value="Shoes">Shoes</option>
+                <option value="Bags">Bags</option>
+                <option value="Beauty">Beauty</option>
+                <option value="Home Appliances">Home Appliances</option>
+                <option value="Gaming">Gaming</option>
+                <option value="Sports">Sports</option>
+                <option value="Kids Items">Kids Items</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Stock Status *</label>
+              <select id="up-stock">
+                <option value="In Stock">In Stock</option>
+                <option value="Low Stock">Low Stock</option>
+                <option value="Last 3 Left">Last 3 Left</option>
+              </select>
+            </div>
+            <div class="form-group"><label>Selling Price (₦) *</label><input type="number" id="up-price" placeholder="e.g. 25000" min="1"></div>
+            <div class="form-group"><label>Original / Slashed Price (₦)</label><input type="number" id="up-original-price" placeholder="e.g. 32000 (optional)" min="1"></div>
+          </div>
+          <div class="form-group"><label>Product Description</label><textarea id="up-desc" rows="4" placeholder="Describe your product features, condition, etc..."></textarea></div>
+
+          <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+            <button class="btn-primary" style="padding:12px 32px;font-size:15px;background:var(--primary);color:#fff;" onclick="submitProduct()">✅ List Product on Marketplace</button>
+            <button style="background:var(--light);border:1px solid var(--border);padding:12px 20px;border-radius:7px;font-size:14px;cursor:pointer;" onclick="clearUploadForm()">🗑️ Clear Form</button>
+          </div>
+          <div id="upload-feedback" style="margin-top:14px;display:none;"></div>
         </div>
       </div>
       <div id="seller-tab-myproducts" style="display:none;">
@@ -1078,6 +1149,147 @@ const productTemplates={
 
 const stockOptions=['In Stock','In Stock','In Stock','In Stock','Low Stock (3 left)','Last 1 in stock'];
 
+// Real product images from Unsplash — matched by product name
+const productImages={
+  'iPhone 15 Pro Max 256GB':'https://images.unsplash.com/photo-1695048133142-1a20484d2569?w=400&q=80',
+  'Samsung Galaxy S24 Ultra':'https://images.unsplash.com/photo-1706219098255-e4c91afce47b?w=400&q=80',
+  'Tecno Spark 20 Pro':'https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400&q=80',
+  'Infinix Hot 40i':'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80',
+  'iPhone 14 128GB':'https://images.unsplash.com/photo-1664478546384-d57ffe74a78c?w=400&q=80',
+  'Xiaomi Redmi Note 13':'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=400&q=80',
+  'iPad Air 5th Gen':'https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=400&q=80',
+  'Samsung Galaxy Tab A9':'https://images.unsplash.com/photo-1589739900243-4b52cd9b104e?w=400&q=80',
+  'Itel A70':'https://images.unsplash.com/photo-1565849904461-04a58ad377e0?w=400&q=80',
+  'OnePlus 12 5G':'https://images.unsplash.com/photo-1610945264803-c22b62831954?w=400&q=80',
+  'Motorola Edge 40':'https://images.unsplash.com/photo-1598327105666-5b89351aff97?w=400&q=80',
+  'Nokia G60 5G':'https://images.unsplash.com/photo-1574944985070-8f3ebc6b79d2?w=400&q=80',
+  'Samsung 55" 4K Smart TV':'https://images.unsplash.com/photo-1571415060716-baff5f717c37?w=400&q=80',
+  'LG 43" Full HD TV':'https://images.unsplash.com/photo-1593784991095-a205069470b6?w=400&q=80',
+  'Sony Bravia 65" OLED':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
+  'HP Laptop 15s 512GB':'https://images.unsplash.com/photo-1496181133206-80ce9b88a853?w=400&q=80',
+  'Dell Inspiron 15 Core i7':'https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&q=80',
+  'Sony WH-1000XM5 Headphones':'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80',
+  'JBL Charge 5 Speaker':'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400&q=80',
+  'Canon EOS M50 Camera':'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?w=400&q=80',
+  'Anker 20000mAh Powerbank':'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400&q=80',
+  'Brother Printer DCP-L2540':'https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?w=400&q=80',
+  'Logitech MX Master 3 Mouse':'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&q=80',
+  'Apple AirPods Pro 2nd Gen':'https://images.unsplash.com/photo-1603351154351-5e2d0600bb77?w=400&q=80',
+  "Men's Ankara Senator Suit":'https://images.unsplash.com/photo-1594938298603-c8148c4b4047?w=400&q=80',
+  "Women's Chiffon Gown":'https://images.unsplash.com/photo-1572804013309-59a88b7e92f1?w=400&q=80',
+  "Men's Casual Polo Shirt":'https://images.unsplash.com/photo-1586790170083-2f9ceadc732d?w=400&q=80',
+  'Ladies Bodycon Dress':'https://images.unsplash.com/photo-1539008835657-9e8e9680c956?w=400&q=80',
+  "Men's Agbada Set (3-piece)":'https://images.unsplash.com/photo-1507679799987-c73779587ccf?w=400&q=80',
+  "Women's Blazer Jacket":'https://images.unsplash.com/photo-1548778052-311f4bc2b502?w=400&q=80',
+  "Men's Slim Fit Jeans":'https://images.unsplash.com/photo-1542272604-787c3835535d?w=400&q=80',
+  'Ladies Ankara Skirt Set':'https://images.unsplash.com/photo-1590735213920-68192a487bc2?w=400&q=80',
+  "Men's Native Kaftan":'https://images.unsplash.com/photo-1519058082700-08a0b56da9b4?w=400&q=80',
+  'Hooded Sweatshirt':'https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=400&q=80',
+  "Women's Linen Jumpsuit":'https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=400&q=80',
+  "Men's Corporate Shirt":'https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf?w=400&q=80',
+  'Nike Air Max 270':'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
+  'Adidas Ultraboost 22':'https://images.unsplash.com/photo-1608231387042-66d1773070a5?w=400&q=80',
+  "Men's Oxford Leather Shoes":'https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=400&q=80',
+  'Ladies Block Heel Sandals':'https://images.unsplash.com/photo-1543163521-1bf539c55dd2?w=400&q=80',
+  'Puma Suede Classic':'https://images.unsplash.com/photo-1587563871167-1ee9c731aefb?w=400&q=80',
+  'Ladies Wedge Ankle Boots':'https://images.unsplash.com/photo-1512374382149-233c42b6a83b?w=400&q=80',
+  "Men's Slip-on Loafers":'https://images.unsplash.com/photo-1533867617858-e7b97e060509?w=400&q=80',
+  'Converse All Star Hi-Top':'https://images.unsplash.com/photo-1491553895911-0055eca6402d?w=400&q=80',
+  'Ladies Platform Sneakers':'https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?w=400&q=80',
+  "Men's Sports Trainers":'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&q=80',
+  'Kids School Shoes':'https://images.unsplash.com/photo-1514989771522-458c9b6c035a?w=400&q=80',
+  'Ladies Flat Ballerina Shoes':'https://images.unsplash.com/photo-1560769629-975ec94e6a86?w=400&q=80',
+  'Ladies Tote Shoulder Bag':'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80',
+  "Men's Leather Laptop Bag":'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=400&q=80',
+  'Backpack 30L Travel Bag':'https://images.unsplash.com/photo-1553062407-98eeb64c6a45?w=400&q=80',
+  'Ladies Mini Crossbody Bag':'https://images.unsplash.com/photo-1566150905458-1bf1fc113f0d?w=400&q=80',
+  'Gucci-Style Handbag':'https://images.unsplash.com/photo-1584917865442-de89df76afd3?w=400&q=80',
+  "Men's Briefcase (Leather)":'https://images.unsplash.com/photo-1491637639811-60e2756cc1c7?w=400&q=80',
+  'Ladies Evening Clutch':'https://images.unsplash.com/photo-1601924994987-69e26d50dc26?w=400&q=80',
+  'School Backpack for Kids':'https://images.unsplash.com/photo-1581605405669-fcdf81165afa?w=400&q=80',
+  'Canvas Tote Shopping Bag':'https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400&q=80',
+  'Ladies Bucket Bag':'https://images.unsplash.com/photo-1590874103328-eac38a683ce7?w=400&q=80',
+  'Travel Duffel Bag 50L':'https://images.unsplash.com/photo-1553062407-98eeb64c6a80?w=400&q=80',
+  "Men's Sling Chest Bag":'https://images.unsplash.com/photo-1547949003-9792a18a2601?w=400&q=80',
+  'Neutrogena Face Wash 200ml':'https://images.unsplash.com/photo-1556228578-0d85b1a4d571?w=400&q=80',
+  'Mac Foundation Studio Fix':'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&q=80',
+  'Fenty Beauty Lip Gloss':'https://images.unsplash.com/photo-1586495777744-4e6232bf5e10?w=400&q=80',
+  'Dove Body Lotion 400ml':'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
+  'Maybelline Mascara':'https://images.unsplash.com/photo-1512496015851-a90fb38ba796?w=400&q=80',
+  'Black Opal Even True Serum':'https://images.unsplash.com/photo-1570194065650-d99fb4bedf0a?w=400&q=80',
+  'Lush Rose Facial Toner':'https://images.unsplash.com/photo-1556228720-195a672e8a03?w=400&q=80',
+  'ORS Olive Oil Edge Control':'https://images.unsplash.com/photo-1527799820374-dcf8d9d4a388?w=400&q=80',
+  'Revlon ColorStay Lipstick':'https://images.unsplash.com/photo-1583241475880-083f84372725?w=400&q=80',
+  'Cetaphil Moisturizing Cream':'https://images.unsplash.com/photo-1601049541289-9b1b7bbbfe19?w=400&q=80',
+  "L'Oreal Paris Shampoo":'https://images.unsplash.com/photo-1585232352617-cb4b88e78a0b?w=400&q=80',
+  'Vaseline Intensive Care Lotion':'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?w=400&q=80',
+  'Nexus 1.5HP Split AC':'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&q=80',
+  'Haier Thermocool 350L Fridge':'https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=400&q=80',
+  'LG 7kg Front Load Washer':'https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=400&q=80',
+  'Binatone Rice Cooker 2.8L':'https://images.unsplash.com/photo-1585515320310-259814833e62?w=400&q=80',
+  'Panasonic Microwave 23L':'https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=400&q=80',
+  'Thermocool 3-Burner Gas Cooker':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80',
+  'Scanfrost Chest Freezer 300L':'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?w=400&q=80',
+  'Philips Iron 2400W Steam':'https://images.unsplash.com/photo-1558171813-c22b57a16cfd?w=400&q=80',
+  'Blender & Food Processor':'https://images.unsplash.com/photo-1570222094114-d054a817e56b?w=400&q=80',
+  'Sonik Standing Fan 16"':'https://images.unsplash.com/photo-1585771724684-38269d6639fd?w=400&q=80',
+  'Midea 1.5HP Ceiling Fan':'https://images.unsplash.com/photo-1580476262798-bddd9f4b7369?w=400&q=80',
+  'Nexus Electric Kettle 1.8L':'https://images.unsplash.com/photo-1556909172-54557c7e4fb7?w=400&q=80',
+  'PS5 Console 825GB':'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400&q=80',
+  'Xbox Series X 1TB':'https://images.unsplash.com/photo-1621259182978-fbf93132d53d?w=400&q=80',
+  'Nintendo Switch OLED':'https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=400&q=80',
+  'PS5 DualSense Controller':'https://images.unsplash.com/photo-1606144042614-b2417e99c4e3?w=400&q=80',
+  'Xbox Wireless Controller':'https://images.unsplash.com/photo-1612287230202-1ff1d85d1bdf?w=400&q=80',
+  'Gaming Headset 7.1 Surround':'https://images.unsplash.com/photo-1599669454699-248893623440?w=400&q=80',
+  'Gaming Chair Racing Style':'https://images.unsplash.com/photo-1598550476439-6847785fcea6?w=400&q=80',
+  '27" 144Hz Gaming Monitor':'https://images.unsplash.com/photo-1527443224154-c4a3942d3acf?w=400&q=80',
+  'Mechanical Gaming Keyboard':'https://images.unsplash.com/photo-1595044426077-d36d9236d54a?w=400&q=80',
+  'PS4 Pro 1TB (Refurb)':'https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?w=400&q=80',
+  'Gaming Mouse 16000 DPI':'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400&q=80',
+  'Nintendo Switch Joy-Cons':'https://images.unsplash.com/photo-1585620385456-4759f9b5c7d9?w=400&q=80',
+  'Wilson Tennis Racket Pro':'https://images.unsplash.com/photo-1617883861744-45e3f87bc27d?w=400&q=80',
+  'Adidas Football Size 5':'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?w=400&q=80',
+  'Yoga Mat Anti-slip 6mm':'https://images.unsplash.com/photo-1592432678016-e910b452f9a2?w=400&q=80',
+  'Dumbbell Set 20kg Pair':'https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=400&q=80',
+  'Treadmill Electric Motorized':'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&q=80',
+  'Cycling Bicycle 26" MTB':'https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=400&q=80',
+  'Nike Dri-FIT Running Shorts':'https://images.unsplash.com/photo-1562886877-5b8d5af9e7c7?w=400&q=80',
+  'Basketball Official Size':'https://images.unsplash.com/photo-1546519638405-a9f168d4b4e1?w=400&q=80',
+  'Jump Rope Speed Cable':'https://images.unsplash.com/photo-1598971861713-54ad16a7e72e?w=400&q=80',
+  'Boxing Gloves 12oz':'https://images.unsplash.com/photo-1584464491033-06628f3a6b7b?w=400&q=80',
+  'Resistance Bands Set (5pcs)':'https://images.unsplash.com/photo-1598971457999-ca4ef48a9a71?w=400&q=80',
+  'Swimming Goggles UV-Protect':'https://images.unsplash.com/photo-1530549387789-4c1017266635?w=400&q=80',
+  'LEGO Classic 790-Piece Set':'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&q=80',
+  'Barbie Dreamhouse Playset':'https://images.unsplash.com/photo-1562040506-a9e559904e07?w=400&q=80',
+  'Kids Electric Ride-on Car':'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=400&q=80',
+  'Educational Tablet for Kids':'https://images.unsplash.com/photo-1561154464-82e9adf32764?w=400&q=80',
+  'Nerf Elite 2.0 Blaster':'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80',
+  'Tricycle 3-Wheel Bike':'https://images.unsplash.com/photo-1519340241574-2cec6aef0c01?w=400&q=80',
+  'Baby Doll with Accessories':'https://images.unsplash.com/photo-1563396983906-b3795482a59a?w=400&q=80',
+  'Remote Control Car 4WD':'https://images.unsplash.com/photo-1594736797933-d0501ba2fe65?w=400&q=80',
+  'Kids School Bag Set':'https://images.unsplash.com/photo-1553062407-98eeb64c6a70?w=400&q=80',
+  "Children's Story Book Bundle":'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400&q=80',
+  'Play Tent Indoor Castle':'https://images.unsplash.com/photo-1535572290543-960a8046f5af?w=400&q=80',
+  'Puzzle 500 Pieces Educational':'https://images.unsplash.com/photo-1606503153255-59d5e417b6f3?w=400&q=80',
+};
+
+const catFallbackImages={
+  'Phones & Tablets':'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=400&q=80',
+  'Electronics':'https://images.unsplash.com/photo-1498049794561-7780e7231661?w=400&q=80',
+  'Fashion':'https://images.unsplash.com/photo-1445205170230-053b83016050?w=400&q=80',
+  'Shoes':'https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400&q=80',
+  'Bags':'https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=400&q=80',
+  'Beauty':'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?w=400&q=80',
+  'Home Appliances':'https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&q=80',
+  'Gaming':'https://images.unsplash.com/photo-1607853202273-797f1c22a38e?w=400&q=80',
+  'Sports':'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=400&q=80',
+  'Kids Items':'https://images.unsplash.com/photo-1587654780291-39c9404d746b?w=400&q=80',
+};
+
+function getProductImage(p){
+  return p.imageUrl || productImages[p.name] || catFallbackImages[p.category] || 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80';
+}
+
 let allProducts=[];let idC=1;
 categories.forEach(cat=>{
   productTemplates[cat].forEach((p,i)=>{
@@ -1114,7 +1326,7 @@ function pdChangeQty(d){pdQty=Math.max(1,pdQty+d);document.getElementById('pd-qt
 function renderCart(){
   const list=document.getElementById('cart-items-list');
   if(!cart.length){list.innerHTML='<div style="text-align:center;padding:60px 20px;"><div style="font-size:64px;margin-bottom:16px;">🛒</div><h3 style="color:var(--muted);">Your cart is empty</h3><button class="btn-primary" style="margin-top:16px;" onclick="showPage(\'products\')">Continue Shopping</button></div>';document.getElementById('cart-subtotal').textContent='₦0';document.getElementById('cart-discount').textContent='-₦0';document.getElementById('cart-total').textContent='₦0';return;}
-  list.innerHTML=cart.map(item=>`<div class="cart-item"><div class="cart-item-img" onclick="openProduct(${item.id})">${item.icon}</div><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div style="font-size:11px;color:var(--muted);">Sold by: ${item.seller}</div><div class="cart-item-price">₦${item.price.toLocaleString()}</div><div class="qty-control-small"><button class="qty-btn-s" onclick="changeQty(${item.id},-1)">−</button><span style="font-weight:600;font-size:14px;min-width:24px;text-align:center;">${item.qty}</span><button class="qty-btn-s" onclick="changeQty(${item.id},1)">+</button></div><button class="remove-btn" onclick="removeFromCart(${item.id})">🗑️ Remove</button></div><div style="text-align:right;flex-shrink:0;"><div style="font-weight:700;color:var(--primary);">₦${(item.price*item.qty).toLocaleString()}</div><div style="font-size:11px;color:var(--muted);text-decoration:line-through;">₦${(item.originalPrice*item.qty).toLocaleString()}</div></div></div>`).join('');
+  list.innerHTML=cart.map(item=>`<div class="cart-item"><div class="cart-item-img" onclick="openProduct(${item.id})" style="overflow:hidden;border-radius:8px;"><img src="${getProductImage(item)}" alt="${item.name}" style="width:100%;height:100%;object-fit:cover;" onerror="this.style.display='none'"></div><div class="cart-item-info"><div class="cart-item-name">${item.name}</div><div style="font-size:11px;color:var(--muted);">Sold by: ${item.seller}</div><div class="cart-item-price">₦${item.price.toLocaleString()}</div><div class="qty-control-small"><button class="qty-btn-s" onclick="changeQty(${item.id},-1)">−</button><span style="font-weight:600;font-size:14px;min-width:24px;text-align:center;">${item.qty}</span><button class="qty-btn-s" onclick="changeQty(${item.id},1)">+</button></div><button class="remove-btn" onclick="removeFromCart(${item.id})">🗑️ Remove</button></div><div style="text-align:right;flex-shrink:0;"><div style="font-weight:700;color:var(--primary);">₦${(item.price*item.qty).toLocaleString()}</div><div style="font-size:11px;color:var(--muted);text-decoration:line-through;">₦${(item.originalPrice*item.qty).toLocaleString()}</div></div></div>`).join('');
   const so=cart.reduce((s,i)=>s+i.originalPrice*i.qty,0),s=cart.reduce((s,i)=>s+i.price*i.qty,0);
   document.getElementById('cart-subtotal').textContent='₦'+so.toLocaleString();
   document.getElementById('cart-discount').textContent='-₦'+(so-s).toLocaleString();
@@ -1142,9 +1354,15 @@ function openProduct(id){
   document.getElementById('pd-breadcrumb').textContent=p.name;
 
   // Gallery
-  document.getElementById('pd-main-img').textContent=p.icon;
+  const imgUrl=getProductImage(p);
+  const pdMainImg=document.getElementById('pd-main-img');
+  pdMainImg.innerHTML=`<img src="${imgUrl}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80'">`;
   const thumbs=document.getElementById('pd-thumbs');
-  thumbs.innerHTML=[p.icon,p.icon,p.icon,p.icon].map((ic,i)=>`<div class="pd-thumb ${i===0?'active':''}" onclick="this.parentNode.querySelectorAll('.pd-thumb').forEach(t=>t.classList.remove('active'));this.classList.add('active');">${ic}</div>`).join('');
+  // Build thumb images: use extra uploaded images if available, else repeat main
+  const allThumbUrls = p.extraImages && p.extraImages.length
+    ? [imgUrl, ...p.extraImages].slice(0,4)
+    : [imgUrl, imgUrl, imgUrl, imgUrl];
+  thumbs.innerHTML=allThumbUrls.map((url,i)=>`<div class="pd-thumb ${i===0?'active':''}" onclick="(function(el,u){document.getElementById('pd-main-img').innerHTML='<img src=\\''+u+'\\' alt=\\'product\\'>';el.parentNode.querySelectorAll('.pd-thumb').forEach(t=>t.classList.remove('active'));el.classList.add('active');})(this,'${url}')"><img src="${url}" alt="thumb"></div>`).join('');
 
   // Info
   document.getElementById('pd-category').textContent=p.category;
@@ -1223,11 +1441,12 @@ function switchPdTab(tab,btn){
 // ===== PRODUCT CARDS =====
 function createProductCard(p){
   const low=p.stock.includes('Low')||p.stock.includes('Last');
+  const imgUrl=getProductImage(p);
   return`<div class="product-card" onclick="openProduct(${p.id})">
     <div class="product-img">
       <div class="discount-badge">-20%</div>
       <button class="wishlist-btn" onclick="event.stopPropagation();showToast('❤️ Added to wishlist!')">♡</button>
-      ${p.icon}
+      <img src="${imgUrl}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80'">
     </div>
     <div class="product-info">
       <div class="product-name">${p.name}</div>
@@ -1293,10 +1512,164 @@ function showPage(name){
   if(name==='products')applyFilters();
 }
 
+// ===== SELLER UPLOAD =====
+let uploadedImages = []; // base64 strings, max 4
+
+function handleImageUpload(event){
+  const files = Array.from(event.target.files).slice(0, 4 - uploadedImages.length);
+  files.forEach(file => readImageFile(file));
+  event.target.value = ''; // reset input so same file can be re-selected
+}
+
+function handleImageDrop(event){
+  event.preventDefault();
+  document.getElementById('img-drop-zone').classList.remove('drag-over');
+  const files = Array.from(event.dataTransfer.files).filter(f=>f.type.startsWith('image/')).slice(0,4-uploadedImages.length);
+  files.forEach(file => readImageFile(file));
+}
+
+function readImageFile(file){
+  if(uploadedImages.length >= 4){ showToast('⚠️ Max 4 images allowed'); return; }
+  if(file.size > 5 * 1024 * 1024){ showToast('⚠️ Image too large — max 5MB'); return; }
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    uploadedImages.push(e.target.result);
+    renderUploadPreviews();
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderUploadPreviews(){
+  // Main drop zone — show first image
+  const zone = document.getElementById('img-drop-zone');
+  const placeholder = document.getElementById('img-drop-placeholder');
+  const preview = document.getElementById('img-drop-preview');
+  if(uploadedImages.length > 0){
+    preview.src = uploadedImages[0];
+    preview.style.display = 'block';
+    placeholder.style.display = 'none';
+    zone.classList.add('has-image');
+  } else {
+    preview.style.display = 'none';
+    placeholder.style.display = 'block';
+    zone.classList.remove('has-image');
+  }
+  // Thumbnail slots (images 2, 3, 4)
+  [0,1,2].forEach(i => {
+    const slot = document.getElementById('img-slot-'+i);
+    const imgIndex = i + 1;
+    if(uploadedImages[imgIndex]){
+      slot.innerHTML = `<img src="${uploadedImages[imgIndex]}" alt="product"><button class="remove-img" onclick="event.stopPropagation();removeUploadImage(${imgIndex})">✕</button>`;
+      slot.classList.add('has-image');
+    } else {
+      slot.innerHTML = '<span>+</span>';
+      slot.classList.remove('has-image');
+    }
+  });
+}
+
+function removeUploadImage(index){
+  uploadedImages.splice(index, 1);
+  renderUploadPreviews();
+}
+
+function triggerSlotUpload(slotIndex){
+  // Only allow if previous slots are filled
+  if(slotIndex + 1 > uploadedImages.length){ showToast('⚠️ Please upload the previous image first'); return; }
+  document.getElementById('up-image-input').click();
+}
+
+function submitProduct(){
+  const name = document.getElementById('up-name').value.trim();
+  const seller = document.getElementById('up-seller').value.trim();
+  const category = document.getElementById('up-category').value;
+  const price = parseInt(document.getElementById('up-price').value);
+  const origPrice = parseInt(document.getElementById('up-original-price').value) || Math.round(price * 1.25);
+  const stock = document.getElementById('up-stock').value;
+  const desc = document.getElementById('up-desc').value.trim();
+  const fb = document.getElementById('upload-feedback');
+
+  if(!name || !seller || !price || price < 1){
+    fb.style.display='block'; fb.className='upload-error';
+    fb.innerHTML='⚠️ Please fill in Product Name, Seller Name, and a valid Price.';
+    return;
+  }
+  if(uploadedImages.length === 0){
+    fb.style.display='block'; fb.className='upload-error';
+    fb.innerHTML='📸 Please upload at least one product image.';
+    return;
+  }
+
+  const newProduct = {
+    id: Date.now(),
+    name, seller, category, price,
+    originalPrice: origPrice,
+    stock,
+    icon: '🛍️',
+    imageUrl: uploadedImages[0],   // main image shown on cards
+    extraImages: uploadedImages.slice(1),
+    description: desc || `${name} — quality product by ${seller}.`,
+    specifications: {'Category':category,'Seller':seller,'Stock':stock},
+    isNew: true
+  };
+
+  // Save to localStorage
+  const saved = JSON.parse(localStorage.getItem('benim_seller_products') || '[]');
+  saved.push(newProduct);
+  localStorage.setItem('benim_seller_products', JSON.stringify(saved));
+
+  // Add to live product list
+  allProducts.unshift(newProduct);
+  renderHomeGrids();
+  applyFilters();
+
+  fb.style.display='block'; fb.className='upload-success';
+  fb.innerHTML=`🎉 <strong>${name}</strong> is now live on BENIM Marketplace! Buyers can see it immediately.`;
+  showToast('✅ Product listed successfully!');
+  fb.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function clearUploadForm(){
+  ['up-name','up-seller','up-price','up-original-price','up-desc'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  uploadedImages = [];
+  renderUploadPreviews();
+  document.getElementById('upload-feedback').style.display='none';
+}
+
+// Load seller-uploaded products from localStorage on page load
+function loadSellerProducts(){
+  const saved = JSON.parse(localStorage.getItem('benim_seller_products') || '[]');
+  saved.forEach(p => allProducts.unshift(p));
+}
+
 // ===== SELLER TABS =====
 function showSellerTab(tab){
   ['overview','upload','myproducts','orders','earnings'].forEach(t=>{const e=document.getElementById('seller-tab-'+t);if(e)e.style.display=t===tab?'block':'none';});
-  if(tab==='myproducts'){const tbody=document.getElementById('seller-products-table');tbody.innerHTML=allProducts.slice(0,6).map(p=>`<tr><td>${p.icon} ${p.name.substring(0,22)}...</td><td>${p.category}</td><td>₦${p.price.toLocaleString()}</td><td>${p.stock}</td><td><button style="background:var(--primary);color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:12px;cursor:pointer;" onclick="showToast('Edit coming soon!')">Edit</button></td></tr>`).join('');}
+  if(tab==='overview'){
+    const cnt = JSON.parse(localStorage.getItem('benim_seller_products')||'[]').length;
+    const el=document.getElementById('seller-stat-products');
+    if(el) el.textContent=cnt;
+  }
+  if(tab==='myproducts'){
+    const sellerProducts = JSON.parse(localStorage.getItem('benim_seller_products')||'[]');
+    const tbody=document.getElementById('seller-products-table');
+    const demoRows = allProducts.slice(0,4).map(p=>`<tr><td>${p.icon} ${p.name.substring(0,22)}...</td><td>${p.category}</td><td>₦${p.price.toLocaleString()}</td><td>${p.stock}</td><td><button style="background:var(--muted);color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:12px;cursor:pointer;" onclick="showToast('Demo product — cannot edit')">Demo</button></td></tr>`).join('');
+    const myRows = sellerProducts.map(p=>`<tr style="background:#f0fff4;"><td>${p.icon} ${p.name.substring(0,22)}</td><td>${p.category}</td><td>₦${p.price.toLocaleString()}</td><td>${p.stock}</td><td><button style="background:var(--red);color:#fff;border:none;padding:4px 10px;border-radius:5px;font-size:12px;cursor:pointer;" onclick="deleteSellerProduct(${p.id})">Delete</button></td></tr>`).join('');
+    tbody.innerHTML = myRows + demoRows;
+  }
+}
+
+function deleteSellerProduct(id){
+  let saved = JSON.parse(localStorage.getItem('benim_seller_products')||'[]');
+  saved = saved.filter(p=>p.id!==id);
+  localStorage.setItem('benim_seller_products', JSON.stringify(saved));
+  allProducts = allProducts.filter(p=>p.id!==id);
+  renderHomeGrids();
+  applyFilters();
+  showSellerTab('myproducts');
+  showToast('🗑️ Product removed.');
 }
 
 // ===== CUSTOMER TABS =====
@@ -1328,6 +1701,7 @@ let cdSecs=9330;
 setInterval(()=>{cdSecs=Math.max(0,cdSecs-1);const h=Math.floor(cdSecs/3600),m=Math.floor((cdSecs%3600)/60),s=cdSecs%60;document.getElementById('cd-h').textContent=String(h).padStart(2,'0');document.getElementById('cd-m').textContent=String(m).padStart(2,'0');document.getElementById('cd-s').textContent=String(s).padStart(2,'0');},1000);
 
 // ===== INIT =====
+loadSellerProducts();
 renderHomeGrids();
 applyFilters();
 </script>
