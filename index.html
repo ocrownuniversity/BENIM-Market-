@@ -434,6 +434,7 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
 .admin-pw-input:focus{border-color:#1565c0;}
 .admin-login-btn{width:100%;background:#1565c0;color:#fff;border:none;border-radius:8px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;}
 .admin-login-btn:hover{background:#1976d2;}
+@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
 .admin-pw-error{background:rgba(218,54,51,0.1);border:1px solid #da3633;border-radius:6px;padding:9px;font-size:12px;color:#da3633;margin-bottom:10px;display:none;}
 
 .admin-app{display:none;width:100%;height:100%;overflow:hidden;}
@@ -568,9 +569,40 @@ textarea.adm-form-input{resize:vertical;min-height:70px;}
     updateAuthUI(user);
     if(user && window._pendingCheckout){
       window._pendingCheckout = false;
-      showPage('checkout');
+      // Admin check on pending checkout
+      if(user.email && user.email.toLowerCase()==='shopwithbenim@gmail.com'){
+        sessionStorage.setItem('benim_admin_auth','1');
+        document.getElementById('admin-overlay').classList.add('open');
+        document.getElementById('admin-login-screen').style.display='none';
+        document.getElementById('admin-app').classList.add('open');
+        admLoadDashboard();
+      } else {
+        showPage('checkout');
+      }
+    }
+    // If admin is already logged in via session, add admin button to header
+    if(sessionStorage.getItem('benim_admin_auth')){
+      addAdminHeaderBtn();
     }
   });
+
+  function addAdminHeaderBtn(){
+    if(document.getElementById('admin-header-btn')) return; // already added
+    const actions = document.querySelector('.header-actions');
+    if(!actions) return;
+    const btn = document.createElement('button');
+    btn.className = 'hbtn';
+    btn.id = 'admin-header-btn';
+    btn.style.cssText = 'background:rgba(253,216,53,0.25);color:#fdd835;border:1px solid rgba(253,216,53,0.4);font-weight:700;';
+    btn.innerHTML = '👑 Admin';
+    btn.onclick = () => {
+      document.getElementById('admin-overlay').classList.add('open');
+      document.getElementById('admin-login-screen').style.display='none';
+      document.getElementById('admin-app').classList.add('open');
+      admLoadDashboard();
+    };
+    actions.prepend(btn);
+  }
 
   function updateAuthUI(user){
     const accountBtn = document.querySelector('.hbtn[onclick*="customer-dashboard"]');
@@ -580,15 +612,23 @@ textarea.adm-form-input{resize:vertical;min-height:70px;}
       if(accountBtn) accountBtn.innerHTML = `👤 ${user.displayName ? user.displayName.split(' ')[0] : 'Account'}`;
       if(topLogin){ topLogin.textContent='My Account'; topLogin.setAttribute('onclick',"showPage('customer-dashboard')");}
       if(topReg){ topReg.textContent='Sign Out'; topReg.setAttribute('onclick','firebaseSignOut()');}
-      // Update customer dashboard name
       const nameInput = document.querySelector('#cust-tab-profile input[type="text"]');
       const emailInput = document.querySelector('#cust-tab-profile input[type="email"]');
       if(nameInput && user.displayName) nameInput.value = user.displayName;
       if(emailInput && user.email) emailInput.value = user.email;
+      // Show admin button if admin email
+      if(user.email && user.email.toLowerCase()==='shopwithbenim@gmail.com'){
+        sessionStorage.setItem('benim_admin_auth','1');
+        setTimeout(addAdminHeaderBtn, 100);
+      }
     } else {
       if(accountBtn) accountBtn.innerHTML = `👤 Account`;
       if(topLogin){ topLogin.textContent='Login'; topLogin.setAttribute('onclick',"showPage('login')");}
       if(topReg){ topReg.textContent='Register'; topReg.setAttribute('onclick',"showPage('register')");}
+      // Remove admin button on logout
+      const adminBtn = document.getElementById('admin-header-btn');
+      if(adminBtn) adminBtn.remove();
+      sessionStorage.removeItem('benim_admin_auth');
     }
   }
 
@@ -603,9 +643,23 @@ textarea.adm-form-input{resize:vertical;min-height:70px;}
     btn.textContent='Signing in...'; btn.disabled=true;
     try{
       await signInWithEmailAndPassword(auth, email, password);
-      showToast('✅ Welcome back to BENIM Market!');
-      if(window._pendingCheckout){window._pendingCheckout=false;showPage('checkout');}
-      else showPage('customer-dashboard');
+      // ===== ADMIN CHECK =====
+      if(email.toLowerCase()==='shopwithbenim@gmail.com'){
+        showToast('👑 Welcome back, Admin!');
+        sessionStorage.setItem('benim_admin_auth','1');
+        showPage('home'); // stay on marketplace
+        setTimeout(()=>{
+          document.getElementById('admin-overlay').classList.add('open');
+          document.getElementById('admin-login-screen').style.display='none';
+          document.getElementById('admin-app').classList.add('open');
+          admLoadDashboard();
+          admRenderOrdersTable(admOrders);
+        }, 300);
+      } else {
+        showToast('✅ Welcome back to BENIM Warehouse!');
+        if(window._pendingCheckout){window._pendingCheckout=false;showPage('checkout');}
+        else showPage('customer-dashboard');
+      }
     } catch(e){
       errEl.textContent = friendlyAuthError(e.code);
       errEl.style.display='block';
@@ -2279,9 +2333,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-const ADMIN_PASSWORD = 'benim2025admin';
+const ADMIN_EMAIL = 'Shopwithbenim@gmail.com';
+const ADMIN_PASSWORD = 'Aderonke';
 
-// Secret: type "adminbenim" anywhere on page to open admin
+// Secret: type "adminbenim" anywhere on page to open admin (desktop)
 let secretBuffer = '';
 document.addEventListener('keypress', e => {
   secretBuffer += e.key;
@@ -2295,6 +2350,13 @@ function openAdminPanel(){
     document.getElementById('admin-login-screen').style.display = 'none';
     document.getElementById('admin-app').classList.add('open');
     admLoadDashboard();
+  } else {
+    document.getElementById('admin-login-screen').style.display = 'flex';
+    document.getElementById('admin-app').classList.remove('open');
+    setTimeout(()=>{
+      const emailInput = document.getElementById('adm-email-input');
+      if(emailInput) emailInput.focus();
+    }, 200);
   }
 }
 
@@ -2303,19 +2365,25 @@ function closeAdminPanel(){
 }
 
 function adminLogin(){
+  const email = (document.getElementById('adm-email-input').value || '').trim();
   const pw = document.getElementById('adm-pw-input').value;
   const err = document.getElementById('adm-pw-error');
-  if(pw === ADMIN_PASSWORD){
+
+  if(email.toLowerCase() === ADMIN_EMAIL.toLowerCase() && pw === ADMIN_PASSWORD){
     sessionStorage.setItem('benim_admin_auth','1');
     document.getElementById('admin-login-screen').style.display = 'none';
     document.getElementById('admin-app').classList.add('open');
+    document.getElementById('adm-email-input').value = '';
     document.getElementById('adm-pw-input').value = '';
     err.style.display = 'none';
     admLoadDashboard();
     admRenderOrdersTable(admOrders);
+    showToast('✅ Welcome, Admin!');
   } else {
     err.style.display = 'block';
     document.getElementById('adm-pw-input').value = '';
+    const card = document.querySelector('.admin-login-card');
+    if(card){ card.style.animation='none'; setTimeout(()=>card.style.animation='shake 0.4s ease',10); setTimeout(()=>card.style.animation='',450); }
   }
 }
 
@@ -2324,6 +2392,9 @@ function adminLogout(){
   document.getElementById('admin-app').classList.remove('open');
   document.getElementById('admin-login-screen').style.display = 'flex';
   document.getElementById('admin-overlay').classList.remove('open');
+  const adminBtn = document.getElementById('admin-header-btn');
+  if(adminBtn) adminBtn.remove();
+  showToast('👋 Admin session ended.');
 }
 
 // ===== ADMIN DATA =====
@@ -2613,9 +2684,10 @@ document.addEventListener('DOMContentLoaded', () => {
     <div class="admin-login-card">
       <div class="icon">🛡️</div>
       <h2>BENIM Warehouse Admin</h2>
-      <p>Enter admin password to access control panel</p>
-      <div class="admin-pw-error" id="adm-pw-error">❌ Wrong password. Try again.</div>
-      <input type="password" class="admin-pw-input" id="adm-pw-input" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')adminLogin()">
+      <p>Sign in with your admin credentials</p>
+      <div class="admin-pw-error" id="adm-pw-error">❌ Incorrect email or password.</div>
+      <input type="email" class="admin-pw-input" id="adm-email-input" placeholder="Admin email address" onkeydown="if(event.key==='Enter')adminLogin()">
+      <input type="password" class="admin-pw-input" id="adm-pw-input" placeholder="Password" onkeydown="if(event.key==='Enter')adminLogin()" style="margin-top:10px;">
       <button class="admin-login-btn" onclick="adminLogin()">Access Admin Panel →</button>
       <div style="margin-top:14px;"><button onclick="closeAdminPanel()" style="background:none;border:none;color:#7d8590;font-size:12px;cursor:pointer;">← Back to Marketplace</button></div>
     </div>
