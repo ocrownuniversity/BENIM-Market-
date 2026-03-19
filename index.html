@@ -30,6 +30,50 @@ button{cursor:pointer;font-family:inherit;}
 .page{display:none;}
 .page.active{display:block;}
 
+/* ===== LIVE SEARCH DROPDOWN ===== */
+.search-wrapper{flex:1;min-width:220px;position:relative;}
+.search-dropdown{position:absolute;top:100%;left:0;right:0;background:#fff;border-radius:0 0 10px 10px;box-shadow:0 8px 28px rgba(0,0,0,0.15);z-index:500;max-height:360px;overflow-y:auto;display:none;}
+.search-dropdown.open{display:block;}
+.search-result-item{display:flex;align-items:center;gap:12px;padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;}
+.search-result-item:last-child{border-bottom:none;}
+.search-result-item:hover{background:var(--light);}
+.search-result-img{width:44px;height:44px;object-fit:cover;border-radius:6px;flex-shrink:0;background:var(--light);}
+.search-result-name{font-size:13px;font-weight:600;color:var(--text);display:-webkit-box;-webkit-line-clamp:1;-webkit-box-orient:vertical;overflow:hidden;}
+.search-result-price{font-size:12px;color:var(--primary);font-weight:700;}
+.search-result-cat{font-size:11px;color:var(--muted);}
+.search-no-results{padding:18px;text-align:center;color:var(--muted);font-size:13px;}
+
+/* ===== WISHLIST ===== */
+.wishlist-count{background:var(--red);color:#fff;border-radius:50%;width:18px;height:18px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;justify-content:center;margin-left:4px;}
+.wishlist-btn{position:absolute;top:8px;right:8px;background:#fff;border:none;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(0,0,0,0.15);opacity:0;transition:all .2s;cursor:pointer;z-index:2;}
+.wishlist-btn.wishlisted{opacity:1;color:var(--red);}
+.product-card:hover .wishlist-btn{opacity:1;}
+
+/* ===== STAR RATINGS ===== */
+.rating-row{display:flex;align-items:center;gap:5px;margin:4px 0 6px;}
+.stars-display{color:#f5a623;font-size:12px;letter-spacing:1px;}
+.rating-count{font-size:11px;color:var(--muted);}
+.rating-bar-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:12px;}
+.rating-bar-bg{flex:1;height:8px;background:var(--border);border-radius:4px;overflow:hidden;}
+.rating-bar-fill{height:100%;background:#f5a623;border-radius:4px;}
+/* Review form */
+.review-form{background:var(--light);border-radius:10px;padding:18px;margin-top:16px;}
+.star-picker{display:flex;gap:6px;margin-bottom:10px;cursor:pointer;}
+.star-picker span{font-size:26px;color:var(--border);transition:color .15s;}
+.star-picker span.lit{color:#f5a623;}
+.review-item{background:#fff;border-radius:8px;padding:14px;margin-bottom:10px;border:1px solid var(--border);}
+.review-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.review-author{font-weight:700;font-size:13px;}
+.review-date{font-size:11px;color:var(--muted);}
+.review-rating{color:#f5a623;font-size:13px;margin-bottom:4px;}
+.review-body{font-size:13px;color:#555;line-height:1.6;}
+
+/* ===== WHATSAPP ===== */
+.wa-product-btn{display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;border:none;border-radius:7px;padding:11px 18px;font-size:13px;font-weight:700;cursor:pointer;transition:background .2s;margin-top:10px;width:100%;}
+.wa-product-btn:hover{background:#1ebe5d;}
+.wa-float{position:fixed;bottom:24px;right:24px;background:#25d366;color:#fff;border-radius:50%;width:56px;height:56px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 18px rgba(37,211,102,0.5);z-index:999;transition:transform .2s;text-decoration:none;}
+.wa-float:hover{transform:scale(1.1);}
+
 /* ===== ICON PICKER ===== */
 .icon-opt{font-size:28px;padding:6px 8px;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:all .15s;line-height:1;display:inline-block;}
 .icon-opt:hover{background:var(--light);border-color:var(--border);}
@@ -378,10 +422,167 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
   .categories-grid{grid-template-columns:repeat(3,1fr);}
 }
 </style>
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signOut, sendPasswordResetEmail, updateProfile } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAusH_i0b-O2WM9PyZW_AvFtd2ZW7iSnE0",
+    authDomain: "benim-525de.firebaseapp.com",
+    projectId: "benim-525de",
+    storageBucket: "benim-525de.firebasestorage.app",
+    messagingSenderId: "806159296289",
+    appId: "1:806159296289:web:a3b760ce9e997462a98060"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
+
+  // Track current user globally
+  window._firebaseAuth = auth;
+  window._googleProvider = googleProvider;
+  window._firebaseUser = null;
+  window._pendingCheckout = false;
+
+  // Auth state listener
+  onAuthStateChanged(auth, (user) => {
+    window._firebaseUser = user;
+    updateAuthUI(user);
+    if(user && window._pendingCheckout){
+      window._pendingCheckout = false;
+      showPage('checkout');
+    }
+  });
+
+  function updateAuthUI(user){
+    const accountBtn = document.querySelector('.hbtn[onclick*="customer-dashboard"]');
+    const topLogin = document.querySelector('.topbar a[onclick*="login"]');
+    const topReg = document.querySelector('.topbar a[onclick*="register"]');
+    if(user){
+      if(accountBtn) accountBtn.innerHTML = `👤 ${user.displayName ? user.displayName.split(' ')[0] : 'Account'}`;
+      if(topLogin){ topLogin.textContent='My Account'; topLogin.setAttribute('onclick',"showPage('customer-dashboard')");}
+      if(topReg){ topReg.textContent='Sign Out'; topReg.setAttribute('onclick','firebaseSignOut()');}
+      // Update customer dashboard name
+      const nameInput = document.querySelector('#cust-tab-profile input[type="text"]');
+      const emailInput = document.querySelector('#cust-tab-profile input[type="email"]');
+      if(nameInput && user.displayName) nameInput.value = user.displayName;
+      if(emailInput && user.email) emailInput.value = user.email;
+    } else {
+      if(accountBtn) accountBtn.innerHTML = `👤 Account`;
+      if(topLogin){ topLogin.textContent='Login'; topLogin.setAttribute('onclick',"showPage('login')");}
+      if(topReg){ topReg.textContent='Register'; topReg.setAttribute('onclick',"showPage('register')");}
+    }
+  }
+
+  // ===== EXPOSED AUTH FUNCTIONS =====
+  window.signInWithEmail = async function(){
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+    const errEl = document.getElementById('login-error');
+    const btn = document.getElementById('login-btn');
+    errEl.style.display='none';
+    if(!email||!password){errEl.textContent='Please fill in email and password.';errEl.style.display='block';return;}
+    btn.textContent='Signing in...'; btn.disabled=true;
+    try{
+      await signInWithEmailAndPassword(auth, email, password);
+      showToast('✅ Welcome back to BENIM Market!');
+      if(window._pendingCheckout){window._pendingCheckout=false;showPage('checkout');}
+      else showPage('customer-dashboard');
+    } catch(e){
+      errEl.textContent = friendlyAuthError(e.code);
+      errEl.style.display='block';
+    }
+    btn.textContent='Sign In'; btn.disabled=false;
+  };
+
+  window.registerWithEmail = async function(){
+    const name = document.getElementById('reg-name').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const password = document.getElementById('reg-password').value;
+    const confirm = document.getElementById('reg-confirm').value;
+    const errEl = document.getElementById('register-error');
+    const btn = document.getElementById('register-btn');
+    errEl.style.display='none';
+    if(!name||!email||!password){errEl.textContent='Please fill in all fields.';errEl.style.display='block';return;}
+    if(password!==confirm){errEl.textContent='Passwords do not match.';errEl.style.display='block';return;}
+    if(password.length<6){errEl.textContent='Password must be at least 6 characters.';errEl.style.display='block';return;}
+    btn.textContent='Creating account...'; btn.disabled=true;
+    try{
+      const cred = await createUserWithEmailAndPassword(auth, email, password);
+      await updateProfile(cred.user, {displayName: name});
+      showToast('🎉 Welcome to BENIM Market, '+name+'!');
+      if(window._pendingCheckout){window._pendingCheckout=false;showPage('checkout');}
+      else showPage('customer-dashboard');
+    } catch(e){
+      errEl.textContent = friendlyAuthError(e.code);
+      errEl.style.display='block';
+    }
+    btn.textContent='Create Account'; btn.disabled=false;
+  };
+
+  window.signInWithGoogle = async function(){
+    try{
+      await signInWithPopup(auth, googleProvider);
+      showToast('✅ Signed in with Google!');
+      if(window._pendingCheckout){window._pendingCheckout=false;showPage('checkout');}
+      else showPage('customer-dashboard');
+    } catch(e){
+      if(e.code!=='auth/popup-closed-by-user')
+        showToast('⚠️ Google sign-in failed. Try again.');
+    }
+  };
+
+  window.firebaseSignOut = async function(){
+    await signOut(auth);
+    showToast('👋 Signed out successfully.');
+    showPage('home');
+  };
+
+  window.forgotPassword = async function(){
+    const email = document.getElementById('login-email').value.trim();
+    if(!email){showToast('⚠️ Enter your email first');return;}
+    try{
+      await sendPasswordResetEmail(auth, email);
+      showToast('📧 Reset link sent to '+email);
+    } catch(e){
+      showToast('⚠️ '+friendlyAuthError(e.code));
+    }
+  };
+
+  window.requireAuthThenCheckout = function(){
+    if(window._firebaseUser){
+      showPage('checkout');
+    } else {
+      window._pendingCheckout = true;
+      // Show login-after-checkout notice
+      showPage('login');
+      setTimeout(()=>{
+        const notice = document.getElementById('login-after-checkout');
+        if(notice) notice.style.display='block';
+      },100);
+    }
+  };
+
+  function friendlyAuthError(code){
+    const map = {
+      'auth/user-not-found':'No account found with this email.',
+      'auth/wrong-password':'Incorrect password. Try again.',
+      'auth/email-already-in-use':'This email is already registered. Sign in instead.',
+      'auth/invalid-email':'Please enter a valid email address.',
+      'auth/weak-password':'Password is too weak. Use at least 6 characters.',
+      'auth/too-many-requests':'Too many attempts. Please wait and try again.',
+      'auth/network-request-failed':'Network error. Check your connection.',
+      'auth/invalid-credential':'Incorrect email or password.',
+    };
+    return map[code] || 'Something went wrong. Please try again.';
+  }
+
+</script>
 </head>
 <body>
 
-<div class="toast" id="toast"></div>
 <a href="https://wa.me/2349168031213" target="_blank" class="wa-float" title="WhatsApp">💬</a>
 
 <!-- TOP BAR -->
@@ -408,14 +609,18 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
       </div>
     </div>
 
-    <div class="search-bar">
-      <select id="searchCategory">
-        <option>All</option><option>Phones & Tablets</option><option>Electronics</option><option>Fashion</option><option>Shoes</option><option>Bags</option><option>Beauty</option><option>Home Appliances</option><option>Gaming</option><option>Sports</option><option>Kids Items</option>
-      </select>
-      <input type="text" id="searchInput" placeholder="Search products, brands and categories...">
-      <button onclick="doSearch()">🔍</button>
+    <div class="search-wrapper">
+      <div class="search-bar">
+        <select id="searchCategory">
+          <option>All</option><option>Phones & Tablets</option><option>Electronics</option><option>Fashion</option><option>Shoes</option><option>Bags</option><option>Beauty</option><option>Home Appliances</option><option>Gaming</option><option>Sports</option><option>Kids Items</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="Search products, brands and categories..." oninput="liveSearch(this.value)" onkeydown="if(event.key==='Enter')doSearch()">
+        <button onclick="doSearch()">🔍</button>
+      </div>
+      <div class="search-dropdown" id="searchDropdown"></div>
     </div>
     <div class="header-actions">
+      <button class="hbtn" onclick="showPage('wishlist')">❤️ Wishlist <span class="wishlist-count" id="wishlistBadge">0</span></button>
       <button class="hbtn" onclick="showPage('cart')">🛒 Cart <span class="badge" id="cartBadge">0</span></button>
       <button class="hbtn" onclick="showPage('customer-dashboard')">👤 Account</button>
     </div>
@@ -702,9 +907,13 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
       <!-- ACTIONS -->
       <div class="pd-action-row">
         <button class="btn-add-cart-lg" id="pd-add-cart">🛒 Add to Cart</button>
-        <button class="btn-buy-now" onclick="showToast('Proceeding to checkout...');showPage('checkout')">⚡ Buy Now</button>
-        <button class="btn-wishlist-lg" onclick="showToast('❤️ Added to wishlist!')">♡</button>
+        <button class="btn-buy-now" onclick="requireAuthThenCheckout()">⚡ Buy Now</button>
+        <button class="btn-wishlist-lg" id="pd-wishlist-btn" onclick="toggleWishlistFromDetail()">♡</button>
       </div>
+      <button class="wa-product-btn" id="pd-whatsapp-btn" onclick="contactSellerWhatsApp()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        Chat Seller on WhatsApp
+      </button>
 
       <!-- DELIVERY INFO -->
       <div class="pd-delivery-box">
@@ -727,9 +936,28 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
           <table class="pd-spec-table" id="pd-spec-table"></table>
         </div>
         <div class="pd-tab-content" id="pd-tab-reviews">
-          <div class="reviews-section">
-            <h3>Customer Reviews</h3>
-            <div id="pd-reviews-list"></div>
+          <div id="pd-rating-summary" style="display:flex;gap:28px;align-items:flex-start;flex-wrap:wrap;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border);">
+            <div style="text-align:center;min-width:90px;">
+              <div style="font-size:52px;font-weight:900;font-family:'Nunito',sans-serif;color:var(--secondary);" id="avg-rating-display">4.5</div>
+              <div style="color:#f5a623;font-size:18px;" id="avg-stars-display">★★★★½</div>
+              <div style="font-size:12px;color:var(--muted);" id="total-reviews-display">0 reviews</div>
+            </div>
+            <div style="flex:1;min-width:200px;" id="rating-bars"></div>
+          </div>
+          <div id="pd-reviews-list"></div>
+          <!-- Write a Review -->
+          <div class="review-form">
+            <h4 style="font-weight:700;font-size:14px;margin-bottom:10px;">✍️ Write a Review</h4>
+            <div class="star-picker" id="starPicker">
+              <span onclick="setReviewStar(1)">★</span>
+              <span onclick="setReviewStar(2)">★</span>
+              <span onclick="setReviewStar(3)">★</span>
+              <span onclick="setReviewStar(4)">★</span>
+              <span onclick="setReviewStar(5)">★</span>
+            </div>
+            <div class="form-group"><input type="text" id="review-name" placeholder="Your name" style="margin-bottom:8px;"></div>
+            <div class="form-group"><textarea id="review-text" rows="3" placeholder="Share your experience with this product..."></textarea></div>
+            <button class="btn-primary" style="background:var(--primary);color:#fff;padding:10px 24px;" onclick="submitReview()">Submit Review</button>
           </div>
         </div>
       </div>
@@ -780,7 +1008,7 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
         <div class="summary-row"><span>Discount (20%)</span><span style="color:var(--green);" id="cart-discount">-₦0</span></div>
         <div class="summary-row"><span>Delivery</span><span style="color:var(--green);">Free</span></div>
         <div class="summary-row total"><span>Total</span><span id="cart-total">₦0</span></div>
-        <button class="checkout-btn" onclick="showPage('checkout')">Proceed to Checkout →</button>
+        <button class="checkout-btn" onclick="requireAuthThenCheckout()">Proceed to Checkout →</button>
         <div class="free-delivery-note">🚚 Free delivery available within Ibadan</div>
       </div>
     </div>
@@ -828,18 +1056,28 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
 <div class="page" id="page-login">
   <div class="auth-layout">
     <div class="auth-box">
-      <h2>Welcome Back!</h2>
-      <p>Sign in to your BENIM Market account</p>
-      <div class="form-group"><label>Email Address</label><input type="email" placeholder="your@email.com"></div>
-      <div class="form-group"><label>Password</label><input type="password" placeholder="Enter your password"></div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:16px;">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;"><input type="checkbox" style="accent-color:var(--primary);"> Remember me</label>
-        <a href="#" style="color:var(--primary);">Forgot password?</a>
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:36px;">🛒</div>
+        <h2 style="margin-top:8px;">Welcome Back!</h2>
+        <p style="color:var(--muted);font-size:13px;">Sign in to your BENIM Market account</p>
       </div>
-      <button class="submit-btn" onclick="showToast('✅ Logged in successfully!');showPage('customer-dashboard')">Sign In</button>
-      <div class="divider">or</div>
-      <button style="width:100%;background:#fff;border:1px solid var(--border);padding:12px;border-radius:8px;font-size:14px;cursor:pointer;" onclick="showToast('Google sign-in coming soon!')">🔐 Continue with Google</button>
+      <!-- Google Sign In -->
+      <button id="google-signin-btn" onclick="signInWithGoogle()" style="width:100%;background:#fff;border:2px solid var(--border);padding:13px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;transition:box-shadow .2s;">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Continue with Google
+      </button>
+      <div class="divider">or sign in with email</div>
+      <div class="form-group"><label>Email Address</label><input type="email" id="login-email" placeholder="your@email.com"></div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-password" placeholder="Enter your password">
+        <div style="text-align:right;margin-top:4px;"><a href="#" onclick="forgotPassword()" style="font-size:12px;color:var(--primary);">Forgot password?</a></div>
+      </div>
+      <div id="login-error" style="display:none;background:#fff0f0;border:1px solid #f5a0a0;border-radius:7px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:12px;"></div>
+      <button class="submit-btn" id="login-btn" onclick="signInWithEmail()">Sign In</button>
       <div class="auth-switch">Don't have an account? <a href="#" onclick="showPage('register')">Register here</a></div>
+      <div id="login-after-checkout" style="display:none;background:#fff8e1;border:1px solid #fdd835;border-radius:7px;padding:10px 14px;font-size:13px;color:#7a5800;margin-top:12px;text-align:center;">
+        🛒 Sign in to complete your order
+      </div>
     </div>
   </div>
 </div>
@@ -848,18 +1086,27 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
 <div class="page" id="page-register">
   <div class="auth-layout">
     <div class="auth-box">
-      <h2>Create Account</h2>
-      <p>Join BENIM Market – Shop Smart, Live Better</p>
+      <div style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:36px;">🎉</div>
+        <h2 style="margin-top:8px;">Create Account</h2>
+        <p style="color:var(--muted);font-size:13px;">Join BENIM Market – Shop Smart, Live Better</p>
+      </div>
+      <!-- Google Sign Up -->
+      <button onclick="signInWithGoogle()" style="width:100%;background:#fff;border:2px solid var(--border);padding:13px;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;transition:box-shadow .2s;">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="20"> Sign up with Google
+      </button>
+      <div class="divider">or register with email</div>
       <div class="auth-tabs">
         <div class="auth-tab active" id="tab-customer" onclick="switchAuthTab('customer')">Customer</div>
         <div class="auth-tab" id="tab-seller" onclick="switchAuthTab('seller')">Seller</div>
       </div>
-      <div class="form-group"><label>Full Name</label><input type="text" placeholder="Enter your full name"></div>
-      <div class="form-group"><label>Email Address</label><input type="email" placeholder="your@email.com"></div>
-      <div class="form-group"><label>Phone Number</label><input type="tel" placeholder="e.g. 09168031213"></div>
-      <div class="form-group"><label>Password</label><input type="password" placeholder="Create a strong password"></div>
-      <div class="form-group"><label>Confirm Password</label><input type="password" placeholder="Repeat your password"></div>
-      <button class="submit-btn" onclick="showToast('✅ Account created! Welcome to BENIM Market!');showPage('customer-dashboard')">Create Account</button>
+      <div class="form-group"><label>Full Name</label><input type="text" id="reg-name" placeholder="Enter your full name"></div>
+      <div class="form-group"><label>Email Address</label><input type="email" id="reg-email" placeholder="your@email.com"></div>
+      <div class="form-group"><label>Phone Number</label><input type="tel" id="reg-phone" placeholder="e.g. 09168031213"></div>
+      <div class="form-group"><label>Password</label><input type="password" id="reg-password" placeholder="Create a strong password (min 6 chars)"></div>
+      <div class="form-group"><label>Confirm Password</label><input type="password" id="reg-confirm" placeholder="Repeat your password"></div>
+      <div id="register-error" style="display:none;background:#fff0f0;border:1px solid #f5a0a0;border-radius:7px;padding:10px 14px;font-size:13px;color:var(--red);margin-bottom:12px;"></div>
+      <button class="submit-btn" id="register-btn" onclick="registerWithEmail()">Create Account</button>
       <div class="auth-switch">Already have an account? <a href="#" onclick="showPage('login')">Sign in</a></div>
     </div>
   </div>
@@ -993,6 +1240,7 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
         <a href="#" onclick="showCustomerTab('track')">🚚 Track Order</a>
         <a href="#" onclick="showCustomerTab('profile')">👤 Account Info</a>
         <a href="#" onclick="showPage('home')">🏠 Back to Home</a>
+        <a href="#" onclick="firebaseSignOut()" style="color:var(--red);">🚪 Sign Out</a>
       </div>
     </aside>
     <div class="dash-content">
@@ -1084,6 +1332,24 @@ footer{background:var(--secondary);color:#cdd3e0;padding:48px 16px 0;}
     </div>
   </div>
 </div>
+
+<!-- ==================== WISHLIST PAGE ==================== -->
+<div class="page" id="page-wishlist">
+  <div class="breadcrumb"><div class="breadcrumb-inner"><a href="#" onclick="showPage('home')">Home</a><span>›</span><span>My Wishlist</span></div></div>
+  <div style="max-width:1300px;margin:auto;padding:28px 16px;">
+    <h2 style="font-family:'Nunito',sans-serif;font-weight:800;font-size:22px;color:var(--secondary);margin-bottom:20px;">❤️ My Wishlist <span id="wishlist-count-label" style="font-size:14px;color:var(--muted);font-weight:400;"></span></h2>
+    <div class="products-grid" id="wishlist-grid">
+      <div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);">
+        <div style="font-size:52px;margin-bottom:12px;">💔</div>
+        <div style="font-size:16px;font-weight:600;">Your wishlist is empty</div>
+        <div style="font-size:13px;margin-top:6px;">Tap ♡ on any product to save it here</div>
+        <button class="btn-primary" style="background:var(--primary);color:#fff;margin-top:18px;padding:10px 28px;" onclick="showPage('products')">Browse Products</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
 
 <script>
 // ===== PRODUCT DATA =====
@@ -1417,8 +1683,10 @@ function openProduct(id){
   `;
 
   // Reviews tab
-  const reviewNames=[['Adaeze O.','Exactly as described! Fast delivery too. Very happy with my purchase.'],['Babatunde F.','Great product, good value for money. Seller was responsive on WhatsApp.'],['Chiamaka N.','Arrived well packaged. Quality is top notch. Will buy again!'],['David A.','Smooth transaction. Product works perfectly. Highly recommend this seller.']];
-  document.getElementById('pd-reviews-list').innerHTML=reviewNames.map(([name,text])=>`<div class="review-item"><div class="review-header"><div class="review-author">${name}</div><div class="review-date">March 2025</div></div><div class="review-rating">★★★★★</div><div class="review-body">${text}</div></div>`).join('');
+  renderRatingSummary(id);
+  renderReviewsList(id);
+  setReviewStar(0);
+  updateDetailWishlistBtn();
 
   // Related products
   const related=allProducts.filter(x=>x.category===p.category&&x.id!==id).slice(0,4);
@@ -1442,15 +1710,18 @@ function switchPdTab(tab,btn){
 function createProductCard(p){
   const low=p.stock.includes('Low')||p.stock.includes('Last');
   const imgUrl=getProductImage(p);
+  const liked=wishlist.includes(p.id);
+  const {avg,count}=getProductRating(p.id);
   return`<div class="product-card" onclick="openProduct(${p.id})">
-    <div class="product-img">
+    <div class="product-img" style="position:relative;">
       <div class="discount-badge">-20%</div>
-      <button class="wishlist-btn" onclick="event.stopPropagation();showToast('❤️ Added to wishlist!')">♡</button>
+      <button class="wishlist-btn ${liked?'wishlisted':''}" onclick="event.stopPropagation();toggleWishlist(${p.id})">${liked?'❤️':'♡'}</button>
       <img src="${imgUrl}" alt="${p.name}" loading="lazy" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400&q=80'">
     </div>
     <div class="product-info">
       <div class="product-name">${p.name}</div>
       <div class="product-seller">by ${p.seller}</div>
+      <div class="rating-row"><span class="stars-display">${'★'.repeat(Math.round(avg))}${'☆'.repeat(5-Math.round(avg))}</span><span class="rating-count">(${count})</span></div>
       <div>
         <span class="product-price">₦${p.price.toLocaleString()}</span>
         <span class="product-old-price">₦${p.originalPrice.toLocaleString()}</span>
@@ -1491,16 +1762,173 @@ function filterCategory(cat){
   applyFilters();
 }
 
+// ===== LIVE SEARCH =====
+let searchTimer=null;
+function liveSearch(q){
+  clearTimeout(searchTimer);
+  const dd=document.getElementById('searchDropdown');
+  if(!q||q.length<2){dd.classList.remove('open');dd.innerHTML='';return;}
+  searchTimer=setTimeout(()=>{
+    const cat=document.getElementById('searchCategory').value;
+    let results=allProducts.filter(p=>{
+      const matchQ=p.name.toLowerCase().includes(q.toLowerCase())||p.category.toLowerCase().includes(q.toLowerCase())||p.seller.toLowerCase().includes(q.toLowerCase());
+      const matchCat=cat==='All'||p.category===cat;
+      return matchQ&&matchCat;
+    }).slice(0,8);
+    if(!results.length){dd.innerHTML='<div class="search-no-results">No products found for "'+q+'"</div>';dd.classList.add('open');return;}
+    dd.innerHTML=results.map(p=>`<div class="search-result-item" onclick="closeSearch();openProduct(${p.id})">
+      <img class="search-result-img" src="${getProductImage(p)}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=80&q=60'">
+      <div>
+        <div class="search-result-name">${p.name}</div>
+        <div class="search-result-cat">${p.category}</div>
+        <div class="search-result-price">₦${p.price.toLocaleString()}</div>
+      </div>
+    </div>`).join('');
+    dd.classList.add('open');
+  },220);
+}
+function closeSearch(){
+  const dd=document.getElementById('searchDropdown');
+  dd.classList.remove('open');dd.innerHTML='';
+  document.getElementById('searchInput').value='';
+}
+document.addEventListener('click',e=>{if(!e.target.closest('.search-wrapper'))closeSearch();});
+
+// ===== WISHLIST =====
+let wishlist=JSON.parse(localStorage.getItem('benim_wishlist')||'[]');
+function toggleWishlist(id){
+  const idx=wishlist.indexOf(id);
+  if(idx>=0){wishlist.splice(idx,1);showToast('💔 Removed from wishlist');}
+  else{wishlist.push(id);showToast('❤️ Added to wishlist!');}
+  localStorage.setItem('benim_wishlist',JSON.stringify(wishlist));
+  updateWishlistBadge();
+  renderHomeGrids();applyFilters();
+  if(document.getElementById('page-wishlist').classList.contains('active'))renderWishlistPage();
+}
+function toggleWishlistFromDetail(){
+  if(!currentProductId)return;
+  toggleWishlist(currentProductId);
+  updateDetailWishlistBtn();
+}
+function updateDetailWishlistBtn(){
+  const btn=document.getElementById('pd-wishlist-btn');
+  if(!btn||!currentProductId)return;
+  const liked=wishlist.includes(currentProductId);
+  btn.textContent=liked?'❤️':'♡';
+  btn.style.color=liked?'var(--red)':'';
+}
+function updateWishlistBadge(){
+  const el=document.getElementById('wishlistBadge');
+  if(el)el.textContent=wishlist.length;
+}
+function renderWishlistPage(){
+  const grid=document.getElementById('wishlist-grid');
+  const lbl=document.getElementById('wishlist-count-label');
+  const items=allProducts.filter(p=>wishlist.includes(p.id));
+  if(lbl)lbl.textContent=`(${items.length} item${items.length!==1?'s':''})`;
+  if(!items.length){
+    grid.innerHTML=`<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);"><div style="font-size:52px;margin-bottom:12px;">💔</div><div style="font-size:16px;font-weight:600;">Your wishlist is empty</div><div style="font-size:13px;margin-top:6px;">Tap ♡ on any product to save it here</div><button class="btn-primary" style="background:var(--primary);color:#fff;margin-top:18px;padding:10px 28px;" onclick="showPage('products')">Browse Products</button></div>`;
+  } else {
+    grid.innerHTML=items.map(createProductCard).join('');
+  }
+}
+
+// ===== RATINGS & REVIEWS =====
+let reviewsByProduct=JSON.parse(localStorage.getItem('benim_reviews')||'{}');
+let currentReviewStar=0;
+
+function setReviewStar(n){
+  currentReviewStar=n;
+  document.querySelectorAll('#starPicker span').forEach((s,i)=>s.classList.toggle('lit',i<n));
+}
+
+function getProductRating(id){
+  const reviews=reviewsByProduct[id]||[];
+  if(!reviews.length)return{avg:4.5,count:128,stars:[5,45,30,12,8]}; // demo
+  const avg=reviews.reduce((s,r)=>s+r.star,0)/reviews.length;
+  const stars=[5,4,3,2,1].map(n=>reviews.filter(r=>r.star===n).length);
+  return{avg:Math.round(avg*10)/10,count:reviews.length,stars};
+}
+
+function renderStars(avg){
+  const full=Math.floor(avg);
+  const half=avg-full>=0.5;
+  let s='';
+  for(let i=0;i<full;i++)s+='★';
+  if(half)s+='½';
+  while(s.replace('½','').length<5)s+='☆';
+  return s;
+}
+
+function renderRatingSummary(id){
+  const {avg,count,stars}=getProductRating(id);
+  document.getElementById('avg-rating-display').textContent=avg.toFixed(1);
+  document.getElementById('avg-stars-display').textContent=renderStars(avg);
+  document.getElementById('total-reviews-display').textContent=count+' review'+(count!==1?'s':'');
+  const total=stars.reduce((a,b)=>a+b,0)||1;
+  document.getElementById('rating-bars').innerHTML=[5,4,3,2,1].map((n,i)=>`
+    <div class="rating-bar-row">
+      <span style="color:#f5a623;font-size:12px;width:14px;">${n}★</span>
+      <div class="rating-bar-bg"><div class="rating-bar-fill" style="width:${Math.round(stars[i]/total*100)}%"></div></div>
+      <span style="color:var(--muted);font-size:11px;width:28px;">${stars[i]}</span>
+    </div>`).join('');
+}
+
+function renderReviewsList(id){
+  const demoReviews=[
+    {name:'Adaeze O.',star:5,text:'Exactly as described! Fast delivery too. Very happy with my purchase.',date:'Mar 10, 2025'},
+    {name:'Babatunde F.',star:4,text:'Great product, good value for money. Seller was responsive on WhatsApp.',date:'Mar 12, 2025'},
+    {name:'Chiamaka N.',star:5,text:'Arrived well packaged. Quality is top notch. Will buy again!',date:'Mar 15, 2025'},
+    {name:'David A.',star:4,text:'Smooth transaction. Product works perfectly. Highly recommend.',date:'Mar 18, 2025'},
+  ];
+  const userReviews=reviewsByProduct[id]||[];
+  const all=[...userReviews.map(r=>({...r,isUser:true})),...demoReviews];
+  document.getElementById('pd-reviews-list').innerHTML=all.map(r=>`
+    <div class="review-item" ${r.isUser?'style="border-color:var(--primary);background:#f0f7ff;"':''}>
+      <div class="review-header"><div class="review-author">${r.name} ${r.isUser?'<span style="font-size:10px;color:var(--primary);font-weight:700;margin-left:4px;">✔ Verified</span>':''}</div><div class="review-date">${r.date||'Recently'}</div></div>
+      <div class="review-rating">${'★'.repeat(r.star)}${'☆'.repeat(5-r.star)}</div>
+      <div class="review-body">${r.text}</div>
+    </div>`).join('');
+}
+
+function submitReview(){
+  const name=document.getElementById('review-name').value.trim();
+  const text=document.getElementById('review-text').value.trim();
+  if(!name||!text){showToast('⚠️ Please fill name and review');return;}
+  if(!currentReviewStar){showToast('⚠️ Please pick a star rating');return;}
+  if(!reviewsByProduct[currentProductId])reviewsByProduct[currentProductId]=[];
+  reviewsByProduct[currentProductId].unshift({name,star:currentReviewStar,text,date:'Just now'});
+  localStorage.setItem('benim_reviews',JSON.stringify(reviewsByProduct));
+  document.getElementById('review-name').value='';
+  document.getElementById('review-text').value='';
+  setReviewStar(0);
+  renderRatingSummary(currentProductId);
+  renderReviewsList(currentProductId);
+  showToast('✅ Review submitted! Thank you.');
+}
+
+// ===== WHATSAPP PER PRODUCT =====
+function contactSellerWhatsApp(){
+  const p=allProducts.find(x=>x.id===currentProductId);
+  if(!p)return;
+  const msg=encodeURIComponent(`Hello! I'm interested in buying "${p.name}" (₦${p.price.toLocaleString()}) on BENIM Market. Is it still available?`);
+  window.open('https://wa.me/2349168031213?text='+msg,'_blank');
+}
+
+
 function doSearch(){
   const q=document.getElementById('searchInput').value.toLowerCase().trim();
   const cat=document.getElementById('searchCategory').value;
   let f=q?allProducts.filter(p=>p.name.toLowerCase().includes(q)||p.category.toLowerCase().includes(q)):[...allProducts];
   if(cat!=='All')f=f.filter(p=>p.category===cat);
+  closeSearch();
   showPage('products');
   document.getElementById('all-products-grid').innerHTML=f.map(createProductCard).join('');
   document.getElementById('products-count').textContent=f.length+' results for "'+q+'"';
 }
-document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')doSearch();});
+});
 
 // ===== PAGES =====
 function showPage(name){
@@ -1510,6 +1938,7 @@ function showPage(name){
   if(name==='cart')renderCart();
   if(name==='checkout')renderCheckoutSummary();
   if(name==='products')applyFilters();
+  if(name==='wishlist')renderWishlistPage();
 }
 
 // ===== SELLER UPLOAD =====
@@ -1704,6 +2133,7 @@ setInterval(()=>{cdSecs=Math.max(0,cdSecs-1);const h=Math.floor(cdSecs/3600),m=M
 loadSellerProducts();
 renderHomeGrids();
 applyFilters();
+updateWishlistBadge();
 </script>
 </body>
 </html>
